@@ -1,4 +1,4 @@
-import 'package:eds_test/data/models/post_model.dart';
+import 'package:eds_test/data/models/hive_models/hive_post_model.dart';
 import 'package:eds_test/presentation/theme/app_colors.dart';
 import 'package:eds_test/presentation/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +22,10 @@ class PostCard extends StatelessWidget {
         children: [
           Text(
             post.title,
-            style: AppTextStyles.title,
+            style: AppTextStyles.bodyTextStyle.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
             textAlign: TextAlign.start,
           ),
           const SizedBox(height: 7),

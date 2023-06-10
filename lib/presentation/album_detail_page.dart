@@ -1,11 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:eds_test/data/models/album_model.dart';
+import 'package:eds_test/data/models/hive_models/hive_album_with_photo_model.dart';
 import 'package:eds_test/presentation/theme/app_colors.dart';
 import 'package:eds_test/presentation/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class AlbumDetailPage extends StatelessWidget {
   final AlbumModelWithPhotos album;
+  
   const AlbumDetailPage({
     required this.album,
     Key? key,

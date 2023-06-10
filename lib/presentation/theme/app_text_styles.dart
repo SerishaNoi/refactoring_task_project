@@ -6,12 +6,12 @@ class AppTextStyles {
   AppTextStyles._();
 
   static TextStyle bodyTextStyle = const TextStyle(
-    fontSize: 14,
+    fontSize: 18,
     color: Colors.black,
   );
 
   static TextStyle title = const TextStyle(
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: FontWeight.w700,
     color: AppColors.white,
   );

@@ -1,17 +1,13 @@
-import 'package:eds_test/data/models/album_model.dart';
-import 'package:eds_test/data/models/post_model.dart';
-import 'package:eds_test/data/models/user_model.dart';
-import 'package:eds_test/data/services/api_service.dart';
-import 'package:eds_test/presentation/album_detail_page.dart';
-import 'package:eds_test/presentation/all_albums_page.dart';
-import 'package:eds_test/presentation/all_posts_page.dart';
-import 'package:eds_test/presentation/post_detail_page.dart';
+import 'package:eds_test/data/models/hive_models/hive_user_model.dart';
+import 'package:eds_test/injections/dependency_injections.dart';
 import 'package:eds_test/presentation/shared_widgets/album_card.dart';
 import 'package:eds_test/presentation/shared_widgets/loader.dart';
 import 'package:eds_test/presentation/shared_widgets/post_card.dart';
 import 'package:eds_test/presentation/theme/app_colors.dart';
 import 'package:eds_test/presentation/theme/app_text_styles.dart';
+import 'package:eds_test/state_managment/user_cubit/user_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class UserPage extends StatefulWidget {
   final UserModel userModel;
@@ -23,209 +19,230 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  bool _isLoading = true;
-  List<PostModel> posts = List.empty();
-  List<AlbumModelWithPhotos> albums = List.empty();
+  late UserPageCubit userPageCubit;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      posts = await ApiService.getPostsByUserId(widget.userModel.id);
-      albums =
-          await ApiService.getAlbumsByUserIdWithPhotos(widget.userModel.id);
-      setState(() {
-        _isLoading = false;
-        posts = posts;
-        albums = albums;
-      });
-    });
+    userPageCubit = getItInstance<UserPageCubit>();
+    userPageCubit.loadUsers(userId: widget.userModel.id);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        title: Text(widget.userModel.username),
-        centerTitle: true,
-        titleTextStyle: AppTextStyles.title,
-        backgroundColor: AppColors.gray,
-      ),
-      body: _isLoading
-          ? const Loader()
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Name: ${widget.userModel.name}',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Email: ${widget.userModel.email}',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Phone: ${widget.userModel.phone}',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Website: ${widget.userModel.website}',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Working Company',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    'Name: ${widget.userModel.company.name}',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    'BS: ${widget.userModel.company.bs}',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    "Catch phase: '${widget.userModel.company.catchPhrase}'",
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Address',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    'City: ${widget.userModel.address.city}',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    'Street: ${widget.userModel.address.street}',
-                    style: AppTextStyles.bodyTextStyle,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
+    return BlocProvider(
+      create: (context) => userPageCubit,
+      child: BlocListener<UserPageCubit, UserPageState>(
+        listener: (context, state) {
+          if (state.isLoading == false) {
+            setState(() {});
+          }
+        },
+        child: Scaffold(
+          backgroundColor: AppColors.white,
+          appBar: AppBar(
+            title: Text(widget.userModel.username),
+            centerTitle: true,
+            titleTextStyle: AppTextStyles.title,
+            backgroundColor: AppColors.gray,
+          ),
+          body: userPageCubit.state.isLoading
+              ? const Loader()
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          'User Posts',
-                          style: AppTextStyles.bodyTextStyle,
+                      Text(
+                        'Name: ${widget.userModel.name}',
+                        style: AppTextStyles.bodyTextStyle.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push<void>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AllPostsPage(
-                                user: widget.userModel,
-                                posts: posts,
+                      const SizedBox(height: 16),
+                      Text(
+                        'Contact Information',
+                        style: AppTextStyles.bodyTextStyle
+                            .copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Email: ${widget.userModel.email}',
+                        style: AppTextStyles.bodyTextStyle,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Phone: ${widget.userModel.phone}',
+                        style: AppTextStyles.bodyTextStyle,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Website: ${widget.userModel.website}',
+                        style: AppTextStyles.bodyTextStyle,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Working Company',
+                        style: AppTextStyles.bodyTextStyle.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Name: ${widget.userModel.company.name}',
+                        style: AppTextStyles.bodyTextStyle,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'BS: ${widget.userModel.company.bs}',
+                        style: AppTextStyles.bodyTextStyle,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Catch phase: '${widget.userModel.company.catchPhrase}'",
+                        style: AppTextStyles.bodyTextStyle,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Address',
+                        style: AppTextStyles.bodyTextStyle.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'City: ${widget.userModel.address.city}',
+                        style: AppTextStyles.bodyTextStyle,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Street: ${widget.userModel.address.street}',
+                        style: AppTextStyles.bodyTextStyle,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'User Posts',
+                              style: AppTextStyles.bodyTextStyle.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
                               ),
                             ),
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.arrow_right_alt_outlined,
-                          size: 30,
-                          color: Colors.black,
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              userPageCubit.navigateToAllPostsPage(
+                                user: widget.userModel,
+                                posts: userPageCubit.state.posts,
+                                context: context,
+                              );
+                            },
+                            icon: DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.black,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_right_alt_outlined,
+                                size: 30,
+                                color: Colors.black,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      ListView.separated(
+                        itemCount: 3,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        separatorBuilder: (_, __) => const SizedBox(
+                          height: 16,
                         ),
-                      )
-                    ],
-                  ),
-                  ListView.separated(
-                    itemCount: 3,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    separatorBuilder: (_, __) => const SizedBox(
-                      height: 16,
-                    ),
-                    itemBuilder: (context, index) {
-                      final post = posts[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push<void>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PostDetailPage(
+                        itemBuilder: (context, index) {
+                          final post = userPageCubit.state.posts[index];
+                          return GestureDetector(
+                            onTap: () {
+                              userPageCubit.navigateToPostDetailPage(
                                 post: post,
-                              ),
+                                context: context,
+                              );
+                            },
+                            child: PostCard(
+                              post: post,
                             ),
                           );
                         },
-                        child: PostCard(
-                          post: post,
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'User Albums',
-                          style: AppTextStyles.bodyTextStyle,
-                        ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push<void>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AllAlbumsPage(
-                                user: widget.userModel,
-                                albums: albums,
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'User Albums',
+                              style: AppTextStyles.bodyTextStyle.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
                               ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              userPageCubit.navigateToAlbumsPage(
+                                context: context,
+                                albums: userPageCubit.state.albumWithPhotos,
+                                user: widget.userModel,
+                              );
+                            },
+                            icon: DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.black,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_right_alt_outlined,
+                                size: 30,
+                                color: Colors.black,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      ListView.separated(
+                        itemCount: 3,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        separatorBuilder: (_, __) => const SizedBox(
+                          height: 16,
+                        ),
+                        itemBuilder: (context, index) {
+                          final album = userPageCubit.state.albumWithPhotos[index];
+                          return GestureDetector(
+                            onTap: () {
+                              userPageCubit.navigateToAlbumDetailPage(
+                                album: album,
+                                context: context,
+                              );
+                            },
+                            child: AlbumCard(
+                              album: album,
                             ),
                           );
                         },
-                        icon: const Icon(
-                          Icons.arrow_right_alt_outlined,
-                          size: 30,
-                          color: Colors.black,
-                        ),
-                      )
+                      ),
                     ],
                   ),
-                  ListView.separated(
-                    itemCount: 3,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    separatorBuilder: (_, __) => const SizedBox(
-                      height: 16,
-                    ),
-                    itemBuilder: (context, index) {
-                      final album = albums[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push<void>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AlbumDetailPage(
-                                album: album,
-                              ),
-                            ),
-                          );
-                        },
-                        child: AlbumCard(
-                          album: album,
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+                ),
+        ),
+      ),
     );
   }
 }

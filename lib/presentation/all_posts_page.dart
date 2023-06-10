@@ -1,7 +1,6 @@
+import 'package:eds_test/data/models/hive_models/hive_post_model.dart';
+import 'package:eds_test/data/models/hive_models/hive_user_model.dart';
 import 'package:flutter/material.dart';
-
-import '../data/models/post_model.dart';
-import '../data/models/user_model.dart';
 import 'post_detail_page.dart';
 import 'shared_widgets/post_card.dart';
 import 'theme/app_colors.dart';

@@ -1,7 +1,6 @@
+import 'package:eds_test/data/models/hive_models/hive_album_with_photo_model.dart';
+import 'package:eds_test/data/models/hive_models/hive_user_model.dart';
 import 'package:flutter/material.dart';
-
-import '../data/models/album_model.dart';
-import '../data/models/user_model.dart';
 import 'album_detail_page.dart';
 import 'shared_widgets/album_card.dart';
 import 'theme/app_colors.dart';
