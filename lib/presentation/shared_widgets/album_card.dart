@@ -18,18 +18,17 @@ class AlbumCard extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(color: Colors.black38, blurRadius: 4, offset: Offset(4, 4)),
+        ],
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: Colors.black45,
         ),
-        gradient: LinearGradient(
-          colors: [
-            Colors.primaries[Random().nextInt(Colors.primaries.length)].withOpacity(0.4),
-            Colors.primaries[Random().nextInt(Colors.primaries.length)].withOpacity(0.4),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight
-        ),
+        gradient: LinearGradient(colors: [
+          Colors.primaries[Random().nextInt(Colors.primaries.length)].withOpacity(0.4),
+          Colors.primaries[Random().nextInt(Colors.primaries.length)].withOpacity(0.4),
+        ], begin: Alignment.topLeft, end: Alignment.bottomRight),
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
